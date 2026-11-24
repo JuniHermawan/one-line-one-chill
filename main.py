@@ -207,6 +207,12 @@ def main():
               f"[{len(text)}ch] {text!r}")
     label, text, p, r, _ = scored[0]
     print(f"PICK {label}: proxy {p} rubric {r}: {text!r}")
+    # Gate check before writing (RULES.txt): UTF-8, 1-200 chars, not
+    # only whitespace, exactly one sentence. Fail loudly rather than
+    # writing an entry the sealed scorer would refuse.
+    assert 1 <= len(text) <= 200, f"entry {len(text)} chars, gate is 1-200"
+    assert text.strip(), "entry is only whitespace"
+    assert len(re.findall(r"[.!?]", text)) == 1, "entry must be one sentence"
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     try:
         os.makedirs(out_dir, exist_ok=True)
